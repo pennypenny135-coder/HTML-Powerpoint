@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="slides-format" content="viewport">
+    <title>MU Q3 FY2026 業績分析</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-bg: #04080f;
+            --color-bg-deep: #020508;
+            --color-surface: #0d1724;
+            --color-text: #e2f0ff;
+            --color-text-secondary: #9ab8d8;
+            --color-text-muted: #4a7099;
+            --color-accent-1: #00d4ff;
+            --color-accent-2: #7b2fff;
+            --color-accent-3: #ff6b35;
+            --color-glass-bg: rgba(0, 212, 255, 0.04);
+            --color-glass-border: rgba(0, 212, 255, 0.12);
+            --color-vignette: rgba(0,0,0,0.6);
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+    </style>
+    <style>
+        :root {
+            --color-bg: #04080f;
+            --color-text: #e2f0ff;
+            --glow-color-rgb: 0,212,255;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { background: var(--color-bg); }
+        body { font-family: 'DM Sans', sans-serif; color: var(--color-text); overflow: hidden; height: 100vh; width: 100vw; }
+        .deck { width: 100vw; height: 100vh; position: relative; }
+        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--color-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transform: scale(0.95); transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; overflow: hidden; }
+        .slide.active { opacity: 1; transform: scale(1); pointer-events: all; }
+        .slide > .content { position: relative; z-index: 2; width: 100%; max-width: 1100px; padding: clamp(1.5rem, 4vw, 3.5rem); }
+        .nav-controls { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; z-index: 100; background: rgba(0,212,255,0.04); backdrop-filter: blur(12px); padding: 9px 22px; border-radius: 40px; border: 1px solid rgba(0,212,255,0.12); }
+        .nav-btn { width: 38px; height: 38px; border: none; background: rgba(0,212,255,0.06); color: #00d4ff; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.3s; }
+        .nav-btn:hover { background: rgba(0,212,255,0.15); }
+        .slide-dots { display: flex; gap: 7px; }
+        .slide-dots .dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(0,212,255,0.2); cursor: pointer; transition: background 0.3s, transform 0.3s; }
+        .slide-dots .dot.active { background: #00d4ff; transform: scale(1.35); }
+        .slide-counter { font-size: 0.75rem; color: #4a7099; min-width: 38px; text-align: center; font-family: 'DM Sans', sans-serif; }
+        .reveal { opacity: 0; transform: translateY(20px); }
+
+        /* Glow effects */
+        .text-glow { text-shadow: 0 0 20px rgba(0,212,255,0.6), 0 0 40px rgba(0,212,255,0.25); }
+        .stat-glow { text-shadow: 0 0 30px rgba(0,212,255,0.7), 0 0 60px rgba(0,212,255,0.3); }
+        @keyframes glow-pulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(0,212,255,0.6), 0 0 40px rgba(0,212,255,0.25); }
+            50% { text-shadow: 0 0 35px rgba(0,212,255,0.9), 0 0 70px rgba(0,212,255,0.4); }
+        }
+        .glow-pulse { animation: glow-pulse 2.5s ease-in-out infinite; }
+
+        /* Gradient mesh blobs */
+        @keyframes float-slow {
+            0% { transform: translate(0,0) scale(1); }
+            25% { transform: translate(60px,-50px) scale(1.12); }
+            50% { transform: translate(-40px,40px) scale(0.9); }
+            75% { transform: translate(50px,20px) scale(1.08); }
+            100% { transform: translate(0,0) scale(1); }
+        }
+        @keyframes float-drift {
+            0% { transform: translate(0,0) scale(1) rotate(0deg); }
+            33% { transform: translate(-50px,-60px) scale(1.15) rotate(3deg); }
+            66% { transform: translate(40px,30px) scale(0.88) rotate(-2deg); }
+            100% { transform: translate(0,0) scale(1) rotate(0deg); }
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+        .gradient-mesh { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(90px); animation: float-slow 11s ease-in-out infinite; }
+        .blob:nth-child(2) { animation: float-drift 15s ease-in-out infinite; }
+        .blob:nth-child(3) { animation: float-slow 19s ease-in-out infinite reverse; }
+
+        /* Noise + vignette */
+        .slide::before {
+            content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            background-repeat:repeat; background-size:256px 256px; opacity:0.03; mix-blend-mode:overlay;
+        }
+        .slide::after {
+            content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+            background:radial-gradient(ellipse at center, transparent 45%, var(--color-vignette) 100%);
+        }
+
+        /* Grid scan line on data slides */
+        .scan-grid {
+            position: absolute; inset: 0; z-index: 0; pointer-events: none;
+            background-image: linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Charts */
+        .bar-fill { height: 100%; border-radius: 3px 3px 0 0; width: 0; transition: none; }
+        .bar-track-v { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+        .bar-container-v { width: 100%; background: rgba(0,212,255,0.06); border-radius: 4px 4px 0 0; overflow: hidden; display: flex; align-items: flex-end; }
+
+        /* Horizontal bars */
+        .h-bar-track { height: 10px; background: rgba(0,212,255,0.08); border-radius: 5px; overflow: hidden; flex: 1; }
+        .h-bar-fill { height: 100%; border-radius: 5px; width: 0; transition: none; }
+
+        /* Donut SVG */
+        .donut-ring { stroke-dasharray: 251.3; stroke-dashoffset: 251.3; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
+
+        /* Neon border cards */
+        .neon-card {
+            border: 1px solid rgba(0,212,255,0.15);
+            background: rgba(0,212,255,0.03);
+            backdrop-filter: blur(12px);
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+        .neon-card:hover {
+            border-color: rgba(0,212,255,0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0,212,255,0.12);
+        }
+
+        /* Ticker tape */
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .ticker-wrap { overflow: hidden; white-space: nowrap; }
+        .ticker-inner { display: inline-block; animation: ticker 20s linear infinite; }
+
+        /* Timeline line */
+        .timeline-line { position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #00d4ff, #7b2fff); }
+        .timeline-dot { width: 14px; height: 14px; border-radius: 50%; background: #00d4ff; box-shadow: 0 0 12px rgba(0,212,255,0.8); flex-shrink: 0; }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="mouse-spotlight" style="position:fixed;inset:0;z-index:99;pointer-events:none;"></div>
+
+<div class="deck">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide slide-1 active" data-slide="1">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:550px;height:550px;top:-120px;right:-100px;background:rgba(0,212,255,1);opacity:0.12;"></div>
+            <div class="blob" style="width:380px;height:380px;bottom:-80px;left:-80px;background:rgba(123,47,255,1);opacity:0.14;"></div>
+            <div class="blob" style="width:250px;height:250px;top:35%;left:12%;background:rgba(0,212,255,1);opacity:0.07;"></div>
+        </div>
+        <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1;width:100%;height:100%;"></canvas>
+        <div class="content text-center">
+            <div style="font-size:90px;margin-bottom:1rem;animation:float 3s ease-in-out infinite;" class="reveal">🧠</div>
+            <div class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,9vw,7rem);background:linear-gradient(135deg,#00d4ff,#7b2fff,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:4px;line-height:0.95;">MU Q3 FY2026</div>
+            <div class="reveal" style="font-size:clamp(1rem,2.5vw,1.6rem);color:#9ab8d8;letter-spacing:8px;text-transform:uppercase;margin-top:1rem;font-weight:300;">業績深度分析</div>
+            <div class="reveal" style="margin-top:1.5rem;display:flex;gap:2rem;justify-content:center;align-items:center;flex-wrap:wrap;">
+                <span style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);padding:0.4rem 1.2rem;border-radius:999px;font-size:0.85rem;color:#00d4ff;letter-spacing:2px;">發布日期：2026.06.24</span>
+                <span style="background:rgba(0,255,100,0.08);border:1px solid rgba(0,255,100,0.2);padding:0.4rem 1.2rem;border-radius:999px;font-size:0.85rem;color:#00ff64;">NASDAQ: MU</span>
+                <span style="background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.2);padding:0.4rem 1.2rem;border-radius:999px;font-size:0.85rem;color:#ff6b35;">業績後股價 +13.1%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: FINANCIAL HIGHLIGHTS -->
+    <div class="slide slide-2" data-slide="2">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:400px;height:400px;top:-80px;right:-60px;background:rgba(0,212,255,1);opacity:0.08;"></div>
+            <div class="blob" style="width:300px;height:300px;bottom:-60px;left:-40px;background:rgba(123,47,255,1);opacity:0.09;"></div>
+        </div>
+        <div class="scan-grid"></div>
+        <div class="content">
+            <div class="reveal" style="font-size:0.75rem;color:#00d4ff;letter-spacing:6px;text-transform:uppercase;margin-bottom:0.6rem;">財務亮點</div>
+            <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:2px;margin-bottom:1.8rem;background:linear-gradient(90deg,#e2f0ff,#9ab8d8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Q3 FY2026 — 史上最強業績</h2>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+                <div class="neon-card reveal" style="padding:1.4rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:0.7rem;color:#4a7099;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem;">Revenue</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:#00d4ff;" class="glow-pulse" data-count="415" data-prefix="$" data-suffix="B">$0B</div>
+                    <div style="font-size:0.75rem;color:#00ff64;margin-top:0.3rem;">↑ 346% YoY</div>
+                    <div style="font-size:0.7rem;color:#4a7099;margin-top:0.2rem;">Beat by +16.2%</div>
+                </div>
+                <div class="neon-card reveal" style="padding:1.4rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:0.7rem;color:#4a7099;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem;">Gross Margin</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:#00d4ff;" class="glow-pulse" data-count="849" data-suffix="%" data-display-divide="10">84.9%</div>
+                    <div style="font-size:0.75rem;color:#00ff64;margin-top:0.3rem;">↑ 10pp QoQ</div>
+                    <div style="font-size:0.7rem;color:#4a7099;margin-top:0.2rem;">vs. 39% a year ago</div>
+                </div>
+                <div class="neon-card reveal" style="padding:1.4rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:0.7rem;color:#4a7099;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem;">Non-GAAP EPS</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:#7b2fff;text-shadow:0 0 20px rgba(123,47,255,0.7);" data-count="2511" data-prefix="$" data-suffix="" data-display-divide="100">$25.11</div>
+                    <div style="font-size:0.75rem;color:#00ff64;margin-top:0.3rem;">↑ 106% QoQ</div>
+                    <div style="font-size:0.7rem;color:#4a7099;margin-top:0.2rem;">Beat by +22.6%</div>
+                </div>
+                <div class="neon-card reveal" style="padding:1.4rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:0.7rem;color:#4a7099;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem;">Free Cash Flow</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:#ff6b35;text-shadow:0 0 20px rgba(255,107,53,0.6);" data-count="183" data-prefix="$" data-suffix="B">$0B</div>
+                    <div style="font-size:0.75rem;color:#00ff64;margin-top:0.3rem;">季度紀錄</div>
+                    <div style="font-size:0.7rem;color:#4a7099;margin-top:0.2rem;">Op. Cash $25.4B</div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem;">
+                <div class="neon-card reveal" style="padding:1rem 1.4rem;border-radius:10px;display:flex;align-items:center;gap:1rem;">
+                    <div style="font-size:1.8rem;">💾</div>
+                    <div>
+                        <div style="font-size:0.7rem;color:#4a7099;letter-spacing:2px;text-transform:uppercase;">DRAM Revenue</div>
+                        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#00d4ff;">$31.3B</div>
+                        <div style="font-size:0.7rem;color:#9ab8d8;">76% of total · ↑343% YoY</div>
+                    </div>
+                </div>
+                <div class="neon-card reveal" style="padding:1rem 1.4rem;border-radius:10px;display:flex;align-items:center;gap:1rem;">
+                    <div style="font-size:1.8rem;">🗄️</div>
+                    <div>
+                        <div style="font-size:0.7rem;color:#4a7099;letter-spacing:2px;text-transform:uppercase;">NAND Revenue</div>
+                        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#7b2fff;">$9.9B</div>
+                        <div style="font-size:0.7rem;color:#9ab8d8;">24% of total · ↑361% YoY</div>
+                    </div>
+                </div>
+                <div class="neon-card reveal" style="padding:1rem 1.4rem;border-radius:10px;display:flex;align-items:center;gap:1rem;">
+                    <div style="font-size:1.8rem;">🏢</div>
+                    <div>
+                        <div style="font-size:0.7rem;color:#4a7099;letter-spacing:2px;text-transform:uppercase;">Data Center</div>
+                        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#ff6b35;">$25B+</div>
+                        <div style="font-size:0.7rem;color:#9ab8d8;">Annualized $100B run rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Q4 GUIDANCE + SCA -->
+    <div class="slide slide-3" data-slide="3">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:450px;height:450px;top:-100px;left:-80px;background:rgba(123,47,255,1);opacity:0.1;"></div>
+            <div class="blob" style="width:280px;height:280px;bottom:-50px;right:-40px;background:rgba(0,212,255,1);opacity:0.08;"></div>
+        </div>
+        <div class="scan-grid"></div>
+        <div class="content">
+            <div class="reveal" style="font-size:0.75rem;color:#7b2fff;letter-spacing:6px;text-transform:uppercase;margin-bottom:0.6rem;">前景指引</div>
+            <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.2rem);letter-spacing:2px;margin-bottom:1.6rem;color:#e2f0ff;">Q4 FY2026 Guidance + 戰略協議</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                <div>
+                    <div class="reveal" style="font-size:0.7rem;color:#4a7099;letter-spacing:4px;text-transform:uppercase;margin-bottom:1rem;">Q4 指引 vs 分析師預期</div>
+                    <div style="display:flex;flex-direction:column;gap:0.8rem;">
+                        <div class="reveal neon-card" style="padding:1rem 1.2rem;border-radius:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                                <span style="font-size:0.8rem;color:#9ab8d8;">Revenue Q4 Guide</span>
+                                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#00d4ff;">$50B ± $1B</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;">
+                                <span style="color:#4a7099;">分析師預期</span>
+                                <span style="color:#ff6b35;">~$43.6B → <span style="color:#00ff64;">Beat +14.7%</span></span>
+                            </div>
+                            <div style="margin-top:0.6rem;background:rgba(0,212,255,0.06);border-radius:4px;overflow:hidden;height:6px;">
+                                <div class="h-bar-fill" data-width="85" style="background:linear-gradient(90deg,#00d4ff,#7b2fff);"></div>
+                            </div>
+                        </div>
+                        <div class="reveal neon-card" style="padding:1rem 1.2rem;border-radius:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                                <span style="font-size:0.8rem;color:#9ab8d8;">Gross Margin Q4</span>
+                                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#7b2fff;">~86%</span>
+                            </div>
+                            <div style="font-size:0.72rem;color:#4a7099;">Q3 84.9% → Q4 86% · 持續創歷史高位</div>
+                            <div style="margin-top:0.6rem;background:rgba(123,47,255,0.06);border-radius:4px;overflow:hidden;height:6px;">
+                                <div class="h-bar-fill" data-width="90" style="background:linear-gradient(90deg,#7b2fff,#00d4ff);"></div>
+                            </div>
+                        </div>
+                        <div class="reveal neon-card" style="padding:1rem 1.2rem;border-radius:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                                <span style="font-size:0.8rem;color:#9ab8d8;">EPS Q4 Guide</span>
+                                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#ff6b35;">$31 ± $1</span>
+                            </div>
+                            <div style="font-size:0.72rem;color:#4a7099;">vs. Q3 $25.11 → ↑23.4% QoQ</div>
+                            <div style="margin-top:0.6rem;background:rgba(255,107,53,0.06);border-radius:4px;overflow:hidden;height:6px;">
+                                <div class="h-bar-fill" data-width="78" style="background:linear-gradient(90deg,#ff6b35,#ffaa00);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="reveal" style="font-size:0.7rem;color:#4a7099;letter-spacing:4px;text-transform:uppercase;margin-bottom:1rem;">16 Strategic Customer Agreements (SCA)</div>
+                    <div class="reveal neon-card" style="padding:1.4rem;border-radius:12px;border-color:rgba(0,212,255,0.25);">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                            <div style="text-align:center;">
+                                <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#00d4ff;" class="stat-glow">$22B+</div>
+                                <div style="font-size:0.72rem;color:#9ab8d8;">現金存款 + 承諾</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#7b2fff;text-shadow:0 0 20px rgba(123,47,255,0.7);">$100B</div>
+                                <div style="font-size:0.72rem;color:#9ab8d8;">最低收入下限</div>
+                            </div>
+                        </div>
+                        <div style="font-size:0.8rem;color:#9ab8d8;line-height:1.6;">
+                            <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="color:#00d4ff;">▸</span> 覆蓋 20% DRAM 及 33% NAND 產能</div>
+                            <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="color:#00d4ff;">▸</span> 協議期間至 2030 年</div>
+                            <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="color:#7b2fff;">▸</span> 佔總收入約 25%</div>
+                            <div style="display:flex;align-items:center;gap:0.6rem;"><span style="color:#ff6b35;">▸</span> 鎖定長期收入可見度</div>
+                        </div>
+                    </div>
+                    <div class="reveal neon-card" style="padding:1rem 1.2rem;border-radius:10px;margin-top:0.8rem;border-color:rgba(0,255,100,0.15);">
+                        <div style="font-size:0.72rem;color:#00ff64;letter-spacing:2px;margin-bottom:0.4rem;">管理層展望</div>
+                        <div style="font-size:0.82rem;color:#9ab8d8;line-height:1.5;">「供需緊缺將持續至 <strong style="color:#00d4ff;">2027年以後</strong>，HBM TAM 2027年將突破 <strong style="color:#7b2fff;">$100B</strong>」</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: SEGMENT BREAKDOWN -->
+    <div class="slide slide-4" data-slide="4">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:420px;height:420px;bottom:-80px;right:-60px;background:rgba(0,212,255,1);opacity:0.09;"></div>
+            <div class="blob" style="width:300px;height:300px;top:-60px;left:-50px;background:rgba(255,107,53,1);opacity:0.07;"></div>
+        </div>
+        <div class="scan-grid"></div>
+        <div class="content">
+            <div class="reveal" style="font-size:0.75rem;color:#ff6b35;letter-spacing:6px;text-transform:uppercase;margin-bottom:0.6rem;">業務分部</div>
+            <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,3rem);letter-spacing:2px;margin-bottom:1.6rem;">各業務段收入 Q3 FY2026</h2>
+            <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:2rem;align-items:start;">
+                <div>
+                    <div class="reveal" style="font-size:0.7rem;color:#4a7099;letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">各段 YoY 增長</div>
+                    <div style="display:flex;flex-direction:column;gap:0.9rem;">
+                        <div class="reveal" style="display:flex;align-items:center;gap:0.8rem;">
+                            <div style="font-size:0.8rem;color:#9ab8d8;width:130px;flex-shrink:0;">Data Center</div>
+                            <div class="h-bar-track">
+                                <div class="h-bar-fill" data-width="95" style="background:linear-gradient(90deg,#00d4ff,#00ff64);"></div>
+                            </div>
+                            <div style="font-size:0.8rem;color:#00d4ff;width:70px;text-align:right;flex-shrink:0;">+600%+ YoY</div>
+                        </div>
+                        <div class="reveal" style="display:flex;align-items:center;gap:0.8rem;">
+                            <div style="font-size:0.8rem;color:#9ab8d8;width:130px;flex-shrink:0;">Cloud Memory</div>
+                            <div class="h-bar-track">
+                                <div class="h-bar-fill" data-width="82" style="background:linear-gradient(90deg,#7b2fff,#00d4ff);"></div>
+                            </div>
+                            <div style="font-size:0.8rem;color:#7b2fff;width:70px;text-align:right;flex-shrink:0;">+300% YoY</div>
+                        </div>
+                        <div class="reveal" style="display:flex;align-items:center;gap:0.8rem;">
+                            <div style="font-size:0.8rem;color:#9ab8d8;width:130px;flex-shrink:0;">Mobile/Client</div>
+                            <div class="h-bar-track">
+                                <div class="h-bar-fill" data-width="68" style="background:linear-gradient(90deg,#ff6b35,#ffaa00);"></div>
+                            </div>
+                            <div style="font-size:0.8rem;color:#ff6b35;width:70px;text-align:right;flex-shrink:0;">+250% YoY</div>
+                        </div>
+                        <div class="reveal" style="display:flex;align-items:center;gap:0.8rem;">
+                            <div style="font-size:0.8rem;color:#9ab8d8;width:130px;flex-shrink:0;">Auto/Embedded</div>
+                            <div class="h-bar-track">
+                                <div class="h-bar-fill" data-width="55" style="background:linear-gradient(90deg,#ffaa00,#ff6b35);"></div>
+                            </div>
+                            <div style="font-size:0.8rem;color:#ffaa00;width:70px;text-align:right;flex-shrink:0;">+300%+ YoY</div>
+                        </div>
+                    </div>
+                    <div class="reveal" style="margin-top:1.4rem;padding:1rem;background:rgba(0,212,255,0.04);border-radius:10px;border:1px solid rgba(0,212,255,0.1);">
+                        <div style="font-size:0.72rem;color:#4a7099;margin-bottom:0.5rem;letter-spacing:2px;">📌 關鍵數字</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.78rem;">
+                            <div style="color:#9ab8d8;">Data Center SSD <span style="color:#00d4ff;font-weight:600;">$5B+</span></div>
+                            <div style="color:#9ab8d8;">Cloud Memory <span style="color:#7b2fff;font-weight:600;">$13.77B</span></div>
+                            <div style="color:#9ab8d8;">Mobile+Client <span style="color:#ff6b35;font-weight:600;">$11.52B</span></div>
+                            <div style="color:#9ab8d8;">Auto+App <span style="color:#ffaa00;font-weight:600;">$4.63B</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="reveal" style="font-size:0.7rem;color:#4a7099;letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;">收入組成 (Q3)</div>
+                    <div class="reveal" style="display:flex;justify-content:center;margin-bottom:1rem;">
+                        <svg width="180" height="180" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,212,255,0.08)" stroke-width="18"/>
+                            <circle class="donut-ring" cx="50" cy="50" r="40" fill="none" stroke="url(#grad1)" stroke-width="18" transform="rotate(-90 50 50)" data-percent="76"/>
+                            <circle class="donut-ring" cx="50" cy="50" r="40" fill="none" stroke="url(#grad2)" stroke-width="18" transform="rotate(-90 50 50)" data-percent="24" data-offset="76"/>
+                            <defs>
+                                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#00d4ff"/>
+                                    <stop offset="100%" style="stop-color:#7b2fff"/>
+                                </linearGradient>
+                                <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#ff6b35"/>
+                                    <stop offset="100%" style="stop-color:#ffaa00"/>
+                                </linearGradient>
+                            </defs>
+                            <text x="50" y="46" text-anchor="middle" font-family="Bebas Neue" font-size="14" fill="#00d4ff">DRAM</text>
+                            <text x="50" y="60" text-anchor="middle" font-family="Bebas Neue" font-size="14" fill="#00d4ff">76%</text>
+                        </svg>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                        <div class="reveal" style="display:flex;align-items:center;gap:0.6rem;font-size:0.78rem;">
+                            <div style="width:10px;height:10px;border-radius:2px;background:linear-gradient(90deg,#00d4ff,#7b2fff);flex-shrink:0;"></div>
+                            <span style="color:#9ab8d8;">DRAM</span>
+                            <span style="margin-left:auto;color:#00d4ff;font-weight:600;">76% · $31.3B</span>
+                        </div>
+                        <div class="reveal" style="display:flex;align-items:center;gap:0.6rem;font-size:0.78rem;">
+                            <div style="width:10px;height:10px;border-radius:2px;background:linear-gradient(90deg,#ff6b35,#ffaa00);flex-shrink:0;"></div>
+                            <span style="color:#9ab8d8;">NAND</span>
+                            <span style="margin-left:auto;color:#ff6b35;font-weight:600;">24% · $9.9B</span>
+                        </div>
+                    </div>
+                    <div class="reveal neon-card" style="padding:0.9rem 1rem;border-radius:10px;margin-top:0.8rem;">
+                        <div style="font-size:0.7rem;color:#4a7099;margin-bottom:0.4rem;">資產負債表</div>
+                        <div style="font-size:0.78rem;color:#9ab8d8;">流動性 <strong style="color:#00d4ff;">$30.2B</strong></div>
+                        <div style="font-size:0.78rem;color:#9ab8d8;">總負債 <strong style="color:#7b2fff;">$5.7B</strong> (↓$4.4B)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: INDUSTRY & HBM -->
+    <div class="slide slide-5" data-slide="5">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:500px;height:500px;top:-100px;right:-80px;background:rgba(123,47,255,1);opacity:0.11;"></div>
+            <div class="blob" style="width:320px;height:320px;bottom:-60px;left:-60px;background:rgba(0,212,255,1);opacity:0.08;"></div>
+        </div>
+        <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1;width:100%;height:100%;"></canvas>
+        <div class="content">
+            <div class="reveal" style="font-size:0.75rem;color:#7b2fff;letter-spacing:6px;text-transform:uppercase;margin-bottom:0.6rem;">行業前景</div>
+            <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,3rem);letter-spacing:2px;margin-bottom:1.5rem;">記憶體超級週期 · AI 結構性需求</h2>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div class="neon-card reveal" style="padding:1.3rem;border-radius:12px;border-color:rgba(0,212,255,0.2);">
+                    <div style="font-size:1.8rem;margin-bottom:0.7rem;">🚀</div>
+                    <div style="font-size:0.7rem;color:#00d4ff;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem;">HBM 市場</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#00d4ff;">$100B+</div>
+                    <div style="font-size:0.75rem;color:#9ab8d8;margin-top:0.3rem;">HBM TAM 2027年預測</div>
+                    <div style="font-size:0.72rem;color:#4a7099;margin-top:0.5rem;line-height:1.5;">HBM 供應至 2026 全年 Sold Out · HBM4 進入量產階段</div>
+                </div>
+                <div class="neon-card reveal" style="padding:1.3rem;border-radius:12px;border-color:rgba(123,47,255,0.2);">
+                    <div style="font-size:1.8rem;margin-bottom:0.7rem;">📈</div>
+                    <div style="font-size:0.7rem;color:#7b2fff;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem;">DRAM 價格</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#7b2fff;">+55-60%</div>
+                    <div style="font-size:0.75rem;color:#9ab8d8;margin-top:0.3rem;">Q1 2026 DRAM QoQ 漲幅</div>
+                    <div style="font-size:0.72rem;color:#4a7099;margin-top:0.5rem;line-height:1.5;">HBM 每 bit 佔用晶圓面積為普通 DRAM 的 3x</div>
+                </div>
+                <div class="neon-card reveal" style="padding:1.3rem;border-radius:12px;border-color:rgba(255,107,53,0.2);">
+                    <div style="font-size:1.8rem;margin-bottom:0.7rem;">🏭</div>
+                    <div style="font-size:0.7rem;color:#ff6b35;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem;">供應增長</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#ff6b35;">≈0%</div>
+                    <div style="font-size:0.75rem;color:#9ab8d8;margin-top:0.3rem;">2026年 bit growth 近乎零</div>
+                    <div style="font-size:0.72rem;color:#4a7099;margin-top:0.5rem;line-height:1.5;">Fab 擴建需 2-3年 · 先進封裝瓶頸持續</div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                <div class="reveal neon-card" style="padding:1rem 1.4rem;border-radius:10px;">
+                    <div style="font-size:0.72rem;color:#00d4ff;letter-spacing:2px;margin-bottom:0.6rem;">NOMURA 三重超級週期預測</div>
+                    <div style="font-size:0.82rem;color:#9ab8d8;line-height:1.6;">
+                        DRAM + NAND + HBM 同步需求爆發<br>
+                        全球記憶體市場規模 → <strong style="color:#00d4ff;">$445B by 2026</strong><br>
+                        較 2025 年幾乎翻倍
+                    </div>
+                </div>
+                <div class="reveal neon-card" style="padding:1rem 1.4rem;border-radius:10px;">
+                    <div style="font-size:0.72rem;color:#7b2fff;letter-spacing:2px;margin-bottom:0.6rem;">AI 數據中心需求</div>
+                    <div style="font-size:0.82rem;color:#9ab8d8;line-height:1.6;">
+                        2026年 DC 將消耗全球 <strong style="color:#7b2fff;">70%</strong> 記憶體產出<br>
+                        OpenAI 8年承諾 AI 基建投資 <strong style="color:#ff6b35;">$1.4T</strong><br>
+                        定價談判由季度轉為月度（供方主導）
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: TECHNICAL ANALYSIS -->
+    <div class="slide slide-6" data-slide="6">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:400px;height:400px;top:-70px;left:-50px;background:rgba(0,212,255,1);opacity:0.09;"></div>
+            <div class="blob" style="width:350px;height:350px;bottom:-70px;right:-60px;background:rgba(0,255,100,1);opacity:0.07;"></div>
+        </div>
+        <div class="scan-grid"></div>
+        <div class="content">
+            <div class="reveal" style="font-size:0.75rem;color:#00ff64;letter-spacing:6px;text-transform:uppercase;margin-bottom:0.6rem;">技術分析</div>
+            <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,3rem);letter-spacing:2px;margin-bottom:1.5rem;">MU 股價走勢 · 技術面解讀</h2>
+            <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:1.8rem;align-items:start;">
+                <div>
+                    <div class="reveal" style="font-size:0.7rem;color:#4a7099;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.8rem;">關鍵價位</div>
+                    <div style="display:flex;flex-direction:column;gap:0.7rem;">
+                        <div class="reveal neon-card" style="padding:0.8rem 1.2rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:0.8rem;color:#9ab8d8;">業績前收市價</span>
+                            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#e2f0ff;">$1,051.77</span>
+                        </div>
+                        <div class="reveal neon-card" style="padding:0.8rem 1.2rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;border-color:rgba(255,107,53,0.25);">
+                            <span style="font-size:0.8rem;color:#9ab8d8;">業績後 AH 高位</span>
+                            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#ff6b35;">$1,222+ (+16%)</span>
+                        </div>
+                        <div class="reveal neon-card" style="padding:0.8rem 1.2rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;border-color:rgba(0,212,255,0.3);">
+                            <span style="font-size:0.8rem;color:#9ab8d8;">當日最高</span>
+                            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#00d4ff;">$1,125.00</span>
+                        </div>
+                        <div class="reveal neon-card" style="padding:0.8rem 1.2rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:0.8rem;color:#9ab8d8;">當日最低</span>
+                            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#9ab8d8;">$991.10</span>
+                        </div>
+                        <div class="reveal neon-card" style="padding:0.8rem 1.2rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;border-color:rgba(0,255,100,0.2);">
+                            <span style="font-size:0.8rem;color:#9ab8d8;">分析師平均目標價</span>
+                            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#00ff64;">$1,048</span>
+                        </div>
+                        <div class="reveal neon-card" style="padding:0.8rem 1.2rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;border-color:rgba(123,47,255,0.3);">
+                            <span style="font-size:0.8rem;color:#9ab8d8;">最高 PT (Leaf Ye CFA)</span>
+                            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#7b2fff;">$1,400</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="reveal" style="font-size:0.7rem;color:#4a7099;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.8rem;">技術信號 + 估值</div>
+                    <div style="display:flex;flex-direction:column;gap:0.7rem;">
+                        <div class="reveal neon-card" style="padding:1rem 1.2rem;border-radius:10px;">
+                            <div style="font-size:0.72rem;color:#00ff64;margin-bottom:0.4rem;">📊 盈利修正幅度</div>
+                            <div style="font-size:0.82rem;color:#9ab8d8;line-height:1.5;">連續第5個季度創收入紀錄<br>過去一年股價累升 <strong style="color:#00d4ff;">700%+</strong></div>
+                        </div>
+                        <div class="reveal neon-card" style="padding:1rem 1.2rem;border-radius:10px;">
+                            <div style="font-size:0.72rem;color:#7b2fff;margin-bottom:0.4rem;">💰 估值參考</div>
+                            <div style="font-size:0.82rem;color:#9ab8d8;line-height:1.5;">市值 <strong style="color:#00d4ff;">$1.19 Trillion</strong><br>Forward P/E 仍在合理區間<br>P/B 2027 預估 ~2.3x</div>
+                        </div>
+                        <div class="reveal neon-card" style="padding:1rem 1.2rem;border-radius:10px;">
+                            <div style="font-size:0.72rem;color:#ff6b35;margin-bottom:0.4rem;">📉 波動性警示</div>
+                            <div style="font-size:0.82rem;color:#9ab8d8;line-height:1.5;">業績日日內波動劇烈<br>高位 $1,125 至低位 $991<br><strong style="color:#ff6b35;">差距 $134 (13.5%)</strong></div>
+                        </div>
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(0,255,100,0.05);border:1px solid rgba(0,255,100,0.15);">
+                            <div style="font-size:0.72rem;color:#00ff64;">Wall Street 共識</div>
+                            <div style="font-size:0.78rem;color:#9ab8d8;margin-top:0.2rem;"><strong style="color:#00ff64;">Strong Buy</strong> · 分析師 34 Buy / 3 Hold / 0 Sell</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: BUY/SELL REASONS -->
+    <div class="slide slide-7" data-slide="7">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:450px;height:450px;top:-80px;left:-60px;background:rgba(0,255,100,1);opacity:0.07;"></div>
+            <div class="blob" style="width:350px;height:350px;bottom:-70px;right:-50px;background:rgba(255,60,60,1);opacity:0.07;"></div>
+        </div>
+        <div class="scan-grid"></div>
+        <div class="content">
+            <div class="reveal" style="font-size:0.75rem;color:#00ff64;letter-spacing:6px;text-transform:uppercase;margin-bottom:0.6rem;">買賣理由</div>
+            <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,3rem);letter-spacing:2px;margin-bottom:1.5rem;">Bull vs Bear · 核心論點</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                <!-- BULL CASE -->
+                <div>
+                    <div class="reveal" style="font-size:0.72rem;color:#00ff64;letter-spacing:4px;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;"><span style="font-size:1rem;">🟢</span> BULL CASE — 做多理由</div>
+                    <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(0,255,100,0.04);border:1px solid rgba(0,255,100,0.12);border-left:3px solid #00ff64;">
+                            <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.2rem;">HBM 結構性壟斷地位</div>
+                            <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;">1-gamma DRAM + G9 NAND 技術領先，HBM4 進入量產，2026年 HBM 全年 Sold Out</div>
+                        </div>
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(0,255,100,0.04);border:1px solid rgba(0,255,100,0.12);border-left:3px solid #00ff64;">
+                            <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.2rem;">SCA 鎖定長線收入</div>
+                            <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;">16個 SCA 覆蓋至2030年，$22B+ 預付款，提供史無前例的收入確定性</div>
+                        </div>
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(0,255,100,0.04);border:1px solid rgba(0,255,100,0.12);border-left:3px solid #00ff64;">
+                            <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.2rem;">毛利率持續擴張</div>
+                            <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;">84.9% → 86% 引導，從去年39% 飛升，成本結構根本性改善</div>
+                        </div>
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(0,255,100,0.04);border:1px solid rgba(0,255,100,0.12);border-left:3px solid #00ff64;">
+                            <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.2rem;">供需基本面超強</div>
+                            <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;">供給增長近乎零，需求每季爆發，管理層稱緊張持續至 2027年以後</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- BEAR CASE -->
+                <div>
+                    <div class="reveal" style="font-size:0.72rem;color:#ff4444;letter-spacing:4px;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;"><span style="font-size:1rem;">🔴</span> BEAR CASE — 風險理由</div>
+                    <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(255,60,60,0.04);border:1px solid rgba(255,60,60,0.12);border-left:3px solid #ff4444;">
+                            <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.2rem;">估值已反映大量好消息</div>
+                            <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;">過去一年股價升700%，$1.19T 市值，部分分析師認為 Peak Margin 已見，upside 收窄</div>
+                        </div>
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(255,60,60,0.04);border:1px solid rgba(255,60,60,0.12);border-left:3px solid #ff4444;">
+                            <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.2rem;">競爭威脅加劇</div>
+                            <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;">中國廠商（CXMT等）積極擴產傳統 DRAM，Samsung + SK Hynix 亦加快 HBM4 推進</div>
+                        </div>
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(255,60,60,0.04);border:1px solid rgba(255,60,60,0.12);border-left:3px solid #ff4444;">
+                            <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.2rem;">AI CapEx 需求波動風險</div>
+                            <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;">若 Hyperscaler AI 投資放緩或出現 Over-Build，需求可能突然逆轉</div>
+                        </div>
+                        <div class="reveal" style="padding:0.8rem 1rem;border-radius:8px;background:rgba(255,60,60,0.04);border:1px solid rgba(255,60,60,0.12);border-left:3px solid #ff4444;">
+                            <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.2rem;">周期性行業 DNA</div>
+                            <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;">記憶體行業歷史上週期性極強，本輪高毛利率是否可持續存在爭議（Goldman 中性）</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: RISK ANALYSIS -->
+    <div class="slide slide-8" data-slide="8">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:500px;height:500px;top:-100px;right:-80px;background:rgba(255,107,53,1);opacity:0.08;"></div>
+            <div class="blob" style="width:300px;height:300px;bottom:-60px;left:-50px;background:rgba(123,47,255,1);opacity:0.08;"></div>
+        </div>
+        <div class="scan-grid"></div>
+        <div class="content">
+            <div class="reveal" style="font-size:0.75rem;color:#ff6b35;letter-spacing:6px;text-transform:uppercase;margin-bottom:0.6rem;">風險矩陣</div>
+            <h2 class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,3rem);letter-spacing:2px;margin-bottom:1.5rem;">主要風險評估</h2>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                <div class="reveal neon-card" style="padding:1.2rem;border-radius:12px;border-color:rgba(255,60,60,0.2);">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem;">
+                        <div style="font-size:0.8rem;color:#ff4444;font-weight:600;">🔴 高影響風險</div>
+                        <span style="font-size:0.65rem;color:#ff4444;background:rgba(255,60,60,0.1);padding:0.2rem 0.5rem;border-radius:4px;">HIGH</span>
+                    </div>
+                    <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.3rem;">AI CapEx 突然收縮</div>
+                    <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;margin-bottom:0.6rem;">Hyperscaler 削減資本開支將立即影響 HBM 及 DC DRAM 需求，毛利率可能快速回落至 50-60%</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span style="font-size:0.65rem;color:#4a7099;">概率估計</span>
+                        <div class="h-bar-track" style="flex:1;">
+                            <div class="h-bar-fill" data-width="20" style="background:linear-gradient(90deg,#ff4444,#ff8800);"></div>
+                        </div>
+                        <span style="font-size:0.65rem;color:#ff6b35;">~20%</span>
+                    </div>
+                </div>
+                <div class="reveal neon-card" style="padding:1.2rem;border-radius:12px;border-color:rgba(255,170,0,0.2);">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem;">
+                        <div style="font-size:0.8rem;color:#ffaa00;font-weight:600;">🟡 中等風險</div>
+                        <span style="font-size:0.65rem;color:#ffaa00;background:rgba(255,170,0,0.1);padding:0.2rem 0.5rem;border-radius:4px;">MEDIUM</span>
+                    </div>
+                    <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.3rem;">Samsung/中國競爭</div>
+                    <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;margin-bottom:0.6rem;">三星 HBM 品控問題已改善，CXMT 等中國廠商以低價侵蝕傳統 DRAM 市場份額</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span style="font-size:0.65rem;color:#4a7099;">概率估計</span>
+                        <div class="h-bar-track" style="flex:1;">
+                            <div class="h-bar-fill" data-width="45" style="background:linear-gradient(90deg,#ffaa00,#ffdd00);"></div>
+                        </div>
+                        <span style="font-size:0.65rem;color:#ffaa00;">~45%</span>
+                    </div>
+                </div>
+                <div class="reveal neon-card" style="padding:1.2rem;border-radius:12px;border-color:rgba(255,170,0,0.2);">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem;">
+                        <div style="font-size:0.8rem;color:#ffaa00;font-weight:600;">🟡 中等風險</div>
+                        <span style="font-size:0.65rem;color:#ffaa00;background:rgba(255,170,0,0.1);padding:0.2rem 0.5rem;border-radius:4px;">MEDIUM</span>
+                    </div>
+                    <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.3rem;">Peak Margin 問題</div>
+                    <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;margin-bottom:0.6rem;">84.9-86% 毛利率歷史前所未見，Goldman Sachs 等認為估值已反映峰值利潤，維持中性</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span style="font-size:0.65rem;color:#4a7099;">概率估計</span>
+                        <div class="h-bar-track" style="flex:1;">
+                            <div class="h-bar-fill" data-width="40" style="background:linear-gradient(90deg,#ffaa00,#ff8800);"></div>
+                        </div>
+                        <span style="font-size:0.65rem;color:#ffaa00;">~40%</span>
+                    </div>
+                </div>
+                <div class="reveal neon-card" style="padding:1.2rem;border-radius:12px;border-color:rgba(0,212,255,0.15);">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem;">
+                        <div style="font-size:0.8rem;color:#00d4ff;font-weight:600;">🔵 低等風險</div>
+                        <span style="font-size:0.65rem;color:#00d4ff;background:rgba(0,212,255,0.1);padding:0.2rem 0.5rem;border-radius:4px;">LOW</span>
+                    </div>
+                    <div style="font-size:0.78rem;color:#e2f0ff;font-weight:600;margin-bottom:0.3rem;">宏觀/地緣政治</div>
+                    <div style="font-size:0.72rem;color:#9ab8d8;line-height:1.5;margin-bottom:0.6rem;">美國出口管制收緊可能影響中國市場業務，但 AI/DC 需求的美國本土增長可補償</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span style="font-size:0.65rem;color:#4a7099;">概率估計</span>
+                        <div class="h-bar-track" style="flex:1;">
+                            <div class="h-bar-fill" data-width="25" style="background:linear-gradient(90deg,#00d4ff,#7b2fff);"></div>
+                        </div>
+                        <span style="font-size:0.65rem;color:#00d4ff;">~25%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: CONCLUSION -->
+    <div class="slide slide-9" data-slide="9">
+        <div class="gradient-mesh">
+            <div class="blob" style="width:560px;height:560px;top:-120px;right:-100px;background:rgba(0,212,255,1);opacity:0.13;"></div>
+            <div class="blob" style="width:400px;height:400px;bottom:-90px;left:-80px;background:rgba(123,47,255,1);opacity:0.14;"></div>
+            <div class="blob" style="width:200px;height:200px;top:40%;left:15%;background:rgba(0,255,100,1);opacity:0.07;"></div>
+        </div>
+        <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1;width:100%;height:100%;"></canvas>
+        <div class="content" style="text-align:center;">
+            <div style="font-size:80px;margin-bottom:1rem;animation:float 3s ease-in-out infinite;" class="reveal">🎯</div>
+            <div class="reveal" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vw,4.5rem);background:linear-gradient(135deg,#00d4ff,#7b2fff,#00ff64);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;margin-bottom:0.8rem;">投資結論</div>
+            <div class="reveal" style="font-size:clamp(0.85rem,1.5vw,1.1rem);color:#9ab8d8;letter-spacing:4px;text-transform:uppercase;margin-bottom:1.8rem;">MU · 結構性 AI 記憶體超強週期</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;text-align:left;">
+                <div class="reveal neon-card" style="padding:1.2rem;border-radius:12px;border-color:rgba(0,255,100,0.25);">
+                    <div style="font-size:0.7rem;color:#00ff64;letter-spacing:3px;margin-bottom:0.5rem;">SHORT-TERM</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#00ff64;">BULLISH</div>
+                    <div style="font-size:0.72rem;color:#9ab8d8;margin-top:0.3rem;line-height:1.5;">Q4 $50B 指引遠超預期，SCAs 鎖定收入確定性，動能強勁</div>
+                </div>
+                <div class="reveal neon-card" style="padding:1.2rem;border-radius:12px;border-color:rgba(0,212,255,0.25);">
+                    <div style="font-size:0.7rem;color:#00d4ff;letter-spacing:3px;margin-bottom:0.5rem;">MEDIUM-TERM</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#00d4ff;">CAUTIOUS+</div>
+                    <div style="font-size:0.72rem;color:#9ab8d8;margin-top:0.3rem;line-height:1.5;">需觀察 HBM4 市佔表現及 Samsung 競爭進展，估值已高</div>
+                </div>
+                <div class="reveal neon-card" style="padding:1.2rem;border-radius:12px;border-color:rgba(123,47,255,0.25);">
+                    <div style="font-size:0.7rem;color:#7b2fff;letter-spacing:3px;margin-bottom:0.5rem;">LONG-TERM</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#7b2fff;">STRUCTURAL</div>
+                    <div style="font-size:0.72rem;color:#9ab8d8;margin-top:0.3rem;line-height:1.5;">AI 記憶體需求為多年結構性趨勢，2027+ TAM $100B+</div>
+                </div>
+            </div>
+            <div class="reveal" style="font-size:0.78rem;color:#4a7099;letter-spacing:2px;">
+                本分析僅供個人參考，不構成投資建議 · 資料截至 2026.06.25
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav-controls">
+    <button class="nav-btn" onclick="changeSlide(-1)">&#8249;</button>
+    <div class="slide-dots" id="dots"></div>
+    <button class="nav-btn" onclick="changeSlide(1)">&#8250;</button>
+    <span class="slide-counter" id="counter">1 / 9</span>
+</div>
+
+<script>
+    let current = 1;
+    const total = document.querySelectorAll('.slide').length;
+    const dotsContainer = document.getElementById('dots');
+    const counter = document.getElementById('counter');
+    for (let i = 1; i <= total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 1 ? ' active' : '');
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+    }
+    function goToSlide(n) {
+        const prev = document.querySelector('.slide.active');
+        const next = document.querySelector(`.slide[data-slide="${n}"]`);
+        if (prev) prev.classList.remove('active');
+        if (next) { next.classList.add('active'); animateSlide(next); }
+        current = n; updateNav();
+    }
+    function changeSlide(dir) { let next = current + dir; if (next < 1) next = total; if (next > total) next = 1; goToSlide(next); }
+    function updateNav() {
+        document.querySelectorAll('.dot').forEach((d, i) => { d.classList.toggle('active', i + 1 === current); });
+        counter.textContent = current + ' / ' + total;
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+    });
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1); });
+
+    function animateSlide(slide) {
+        slide.querySelectorAll('.reveal').forEach((el, i) => {
+            el.style.transition = 'none';
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.offsetHeight;
+            const delay = i * 0.07;
+            el.style.transition = `opacity 0.35s ease ${delay}s, transform 0.35s ease ${delay}s`;
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0px)';
+        });
+        animateSlideEffects(slide);
+    }
+
+    function animateSlideEffects(slide) {
+        // Animated counters
+        slide.querySelectorAll('[data-count]:not(.counted)').forEach(el => {
+            el.classList.add('counted');
+            const target = parseInt(el.dataset.count);
+            const suffix = el.dataset.suffix || '';
+            const prefix = el.dataset.prefix || '';
+            const divide = el.dataset.displayDivide ? parseFloat(el.dataset.displayDivide) : 1;
+            let cur = 0; const step = target / 45;
+            const timer = setInterval(() => {
+                cur += step;
+                if (cur >= target) { cur = target; clearInterval(timer); }
+                const display = Math.round(cur) / divide;
+                el.textContent = prefix + display.toFixed(divide > 1 ? 1 : 0) + suffix;
+            }, 25);
+        });
+        // Horizontal bar fills
+        slide.querySelectorAll('.h-bar-fill:not(.fill-init)').forEach((bar, i) => {
+            bar.classList.add('fill-init');
+            bar.style.width = '0%';
+            bar.style.transition = `width 0.7s ease ${i * 0.1}s`;
+            bar.offsetHeight;
+            bar.style.width = bar.dataset.width + '%';
+        });
+        // SVG donut rings
+        slide.querySelectorAll('.donut-ring:not(.ring-init)').forEach((ring, idx) => {
+            ring.classList.add('ring-init');
+            const percent = parseInt(ring.dataset.percent);
+            const offset = parseInt(ring.dataset.offset || 0);
+            const circumference = 251.3;
+            const dashoffset = circumference - (percent / 100) * circumference;
+            const rotateOffset = (offset / 100) * 360 - 90;
+            ring.style.strokeDashoffset = circumference.toString();
+            ring.setAttribute('transform', `rotate(${rotateOffset} 50 50)`);
+            setTimeout(() => {
+                ring.style.transition = 'stroke-dashoffset 1.2s ease 0.3s';
+                ring.style.strokeDashoffset = dashoffset.toString();
+            }, 200 + idx * 100);
+        });
+    }
+
+    // Mouse spotlight
+    document.addEventListener('mousemove', (e) => {
+        const spotlight = document.querySelector('.mouse-spotlight');
+        if (spotlight) {
+            spotlight.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(0,212,255,0.055), transparent 40%)`;
+        }
+    });
+
+    // Particle canvas
+    window.initParticles = function(canvas, options) {
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth || window.innerWidth;
+        canvas.height = canvas.offsetHeight || window.innerHeight;
+        const interactive = options.interactive !== false;
+        const count = options.count || (interactive ? 55 : 18);
+        let mx = -1000, my = -1000;
+        const particles = Array.from({ length: count }, () => ({
+            x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+            size: Math.random() * 2.5 + 0.8, alpha: Math.random() * 0.35 + 0.1
+        }));
+        if (interactive) {
+            canvas.addEventListener('mousemove', (e) => { const rect = canvas.getBoundingClientRect(); mx = e.clientX - rect.left; my = e.clientY - rect.top; });
+            canvas.addEventListener('mouseleave', () => { mx = -1000; my = -1000; });
+        }
+        (function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                if (interactive) {
+                    const dx = p.x - mx, dy = p.y - my, dist = Math.sqrt(dx*dx+dy*dy);
+                    if (dist < 120) { const force = (120-dist)/120*2; p.vx += (dx/dist)*force*0.1; p.vy += (dy/dist)*force*0.1; }
+                }
+                p.vx *= 0.98; p.vy *= 0.98; p.x += p.vx; p.y += p.vy;
+                if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(0,212,255,${p.alpha})`; ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        })();
+    };
+    document.querySelectorAll('.particle-canvas').forEach(c => window.initParticles(c, { interactive: true, count: 55 }));
+    document.querySelectorAll('.particle-canvas-ambient').forEach(c => window.initParticles(c, { interactive: false, count: 18 }));
+
+    try { animateSlide(document.querySelector('.slide.active')); } catch(e) { console.warn(e); }
+</script>
+</body>
+</html>
